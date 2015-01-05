@@ -2,13 +2,15 @@
 
 Super simple web driver.
 
+[![Gyazo](http://i.gyazo.com/511b5265c67d41fc2cd7394c1eee3b7a.gif)](http://gyazo.com/511b5265c67d41fc2cd7394c1eee3b7a)
+
 ## Installation
 
-1. Install gem as you like. 
+[1] Install gem as you like. 
 
     $ gem install gogo_driver
     
-2. Install chromedriver. Below is the MacOS example.
+[2] Install chromedriver. Below is the MacOS example.
 
     $ brew install chromedriver
 
@@ -31,3 +33,4 @@ else
   # ログイン成功時の処理
 end
 ```
+
