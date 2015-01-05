@@ -19,15 +19,11 @@ Let me show how to login Facebook.
 
 ```
 require 'gogo_driver'
-include GogoDriver
 
-go('https://www.facebook.com/')
-
-find('input#email').fill('mail@gogotanaka.com')
-
-find('input#pass').fill('password')
-
-submit
+driver = GogoDriver.new('https://www.facebook.com/')
+driver.find('input#email').fill('mail@gogotanaka.com')
+driver.find('input#pass').fill('password')
+driver.submit
 
 if driver.has_text?('メールアドレスが正しくありません')
   # ログインエラー後の処理

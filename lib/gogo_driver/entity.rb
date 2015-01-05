@@ -1,5 +1,6 @@
 require 'selenium-webdriver'
-module GogoDriver
+
+class GogoDriver
   class Entity
     attr_reader :driver
 
