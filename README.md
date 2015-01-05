@@ -17,7 +17,7 @@ Super simple web driver.
 
 Let me show how to login Facebook.
 
-```
+```rb
 require 'gogo_driver'
 
 driver = GogoDriver.new('https://www.facebook.com/')
