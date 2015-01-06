@@ -2,7 +2,7 @@ require 'selenium-webdriver'
 
 class GogoDriver
   class Entity
-    attr_reader :driver
+    attr_accessor :driver
 
     def initialize
       @driver = Selenium::WebDriver.for(:chrome)

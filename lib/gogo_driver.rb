@@ -2,6 +2,8 @@ require "gogo_driver/version"
 require "gogo_driver/entity"
 
 class GogoDriver
+  attr_accessor :entity
+
   def initialize(url='https://www.google.com')
     @entity = Entity.new
     @entity.go(url)
