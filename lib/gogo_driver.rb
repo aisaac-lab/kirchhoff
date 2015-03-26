@@ -1,19 +1,45 @@
-require "gogo_driver/version"
-require "gogo_driver/entity"
+require 'selenium-webdriver'
 
 class GogoDriver
-  attr_accessor :entity
+  attr_accessor :driver
 
-  def initialize(url='https://www.google.com')
-    @entity = Entity.new
-    @entity.go(url)
-    @last_url = url
+  def initialize
+    @driver = Selenium::WebDriver.for(:chrome)
+  end
+
+  def go(url)
+    @driver.navigate.to(url)
+  end
+
+  def reload
+    @driver.navigate.refresh
+  end
+
+  def find(selector)
+    @driver.find_element(css: selector)
+  end
+
+  def has?(selector)
+    !!find(selector)
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    false
+  end
+
+  def has_text?(text)
+    !!@driver.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    false
+  end
+
+  def click(selector)
+    has?(selector) ? find(selector).click : false
+  end
+
+  def submit
+    $focus.submit if $focus
   end
 
   def method_missing(method, *args, &block)
-    @entity.respond_to?(method) ? @entity.send(method, *args, &block) : super
-  rescue Errno::ECONNREFUSED
-    initialize(@last_url)
-    @entity.send(method, *args, &block)
+    @driver.respond_to?(method) ? @driver.send(method, *args, &block) : super
   end
 end
