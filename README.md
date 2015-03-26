@@ -22,7 +22,8 @@ Let me show how to login Facebook.
 ```rb
 require 'gogo_driver'
 
-driver = GogoDriver.new('https://www.facebook.com/')
+driver = GogoDriver.new
+driver.go('https://www.facebook.com/')
 driver.find('input#email').fill('mail@gogotanaka.com')
 driver.find('input#pass').fill('password')
 driver.submit
