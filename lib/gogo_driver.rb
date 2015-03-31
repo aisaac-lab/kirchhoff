@@ -3,11 +3,12 @@ require 'selenium-webdriver'
 class GogoDriver
   attr_accessor :driver
 
-  def initialize
-    @driver = Selenium::WebDriver.for(:chrome)
+  def initialize(browser=:chrome)
+    @driver = Selenium::WebDriver.for(browser)
   end
 
   def go(url)
+    logging "[VISITE] #{url}..."
     @driver.navigate.to(url)
   end
 
@@ -16,6 +17,7 @@ class GogoDriver
   end
 
   def find(selector)
+    logging "[FIND] #{selector}..."
     @driver.find_element(css: selector)
   end
 
@@ -36,21 +38,29 @@ class GogoDriver
   end
 
   def click(selector)
+    logging "[CLICK] #{selector}..."
     has?(selector) ? find(selector).click : false
   end
 
   def submit
+    logging "[SUBMIT] ..."
     $focus.submit if $focus
   end
 
   def method_missing(method, *args, &block)
     @driver.respond_to?(method) ? @driver.send(method, *args, &block) : super
   end
+
+  private
+    def logging(text)
+      puts text
+    end
 end
 
 class Selenium::WebDriver::Element
   def fill(text)
     $focus = self
+    "[FILL] #{selector}..."
     send_key(text)
   end
 
@@ -61,4 +71,9 @@ class Selenium::WebDriver::Element
   def finds(selector)
     find_elements(css: selector)
   end
+
+  private
+    def logging(text)
+      puts text
+    end
 end
