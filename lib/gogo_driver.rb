@@ -21,6 +21,14 @@ class GogoDriver
     @driver.find_element(css: selector)
   end
 
+  # http://stackoverflow.com/questions/11908249/debugging-element-is-not-clickable-at-point-error
+  def scroll(selector)
+    logging "[SCROLL] #{selector}..."
+    element = find(selector)
+    @driver.driver.execute_script "window.scrollTo(#{element.location.x},#{element.location.y})"
+    element
+  end
+
   def finds(selector)
     @driver.find_elements(css: selector)
   end
@@ -60,7 +68,7 @@ end
 class Selenium::WebDriver::Element
   def fill(text)
     $focus = self
-    "[FILL] #{selector}..."
+    "[FILL] #{text}..."
     send_key(text)
   end
 
