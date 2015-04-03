@@ -1,36 +1,36 @@
 require 'selenium-webdriver'
 
 class GogoDriver
-  attr_accessor :driver
+  attr_accessor :__driver__
 
   def initialize(browser=:chrome)
-    @driver = Selenium::WebDriver.for(browser)
+    @__driver__ = Selenium::WebDriver.for(browser)
   end
 
   def go(url)
     logging "[VISITE] #{url}..."
-    @driver.navigate.to(url)
+    @__driver__.navigate.to(url)
   end
 
   def reload
-    @driver.navigate.refresh
+    @__driver__.navigate.refresh
   end
 
   def find(selector)
     logging "[FIND] #{selector}..."
-    @driver.find_element(css: selector)
+    @__driver__.find_element(css: selector)
   end
 
   # http://stackoverflow.com/questions/11908249/debugging-element-is-not-clickable-at-point-error
   def scroll(selector)
     logging "[SCROLL] #{selector}..."
     element = find(selector)
-    @driver.driver.execute_script "window.scrollTo(#{element.location.x},#{element.location.y})"
+    @__driver__.driver.execute_script "window.scrollTo(#{element.location.x},#{element.location.y})"
     element
   end
 
   def finds(selector)
-    @driver.find_elements(css: selector)
+    @__driver__.find_elements(css: selector)
   end
 
   def has?(selector)
@@ -40,7 +40,7 @@ class GogoDriver
   end
 
   def has_text?(text)
-    !!@driver.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+    !!@__driver__.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
   rescue Selenium::WebDriver::Error::NoSuchElementError
     false
   end
@@ -55,8 +55,12 @@ class GogoDriver
     $focus.submit if $focus
   end
 
+  def save_html(file_path)
+    File.open(file_path, 'w') { |f| f.write(@__driver__.page_source) }
+  end
+
   def method_missing(method, *args, &block)
-    @driver.respond_to?(method) ? @driver.send(method, *args, &block) : super
+    @__driver__.respond_to?(method) ? @__driver__.send(method, *args, &block) : super
   end
 
   private

@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "gogo_driver"
-  spec.version       = "0.1.3"
+  spec.version       = "0.1.4"
   spec.authors       = ["gogotanaka"]
   spec.email         = ["mail@tanakakazuki.com"]
   spec.summary       = %q{Super simple web driver.}
