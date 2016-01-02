@@ -1,14 +1,15 @@
 require 'selenium-webdriver'
 
-class GogoDriver
+class SmartDriver
   attr_accessor :__driver__
 
-  def initialize(browser=:chrome)
+  def initialize(url=nil, browser=:chrome)
     @__driver__ = Selenium::WebDriver.for(browser)
+    go(url) if url
   end
 
   def go(url)
-    logging "[VISITE] #{url}..."
+    logging :info, "visiting #{url}..."
     @__driver__.navigate.to(url)
   end
 
@@ -17,20 +18,25 @@ class GogoDriver
   end
 
   def find(selector)
-    logging "[FIND] #{selector}..."
+    logging :info, "find #{selector}..."
     @__driver__.find_element(css: selector)
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "#{selector} cannot be found"
+  end
+
+  def finds(selector)
+    logging :info, "finds #{selector}..."
+    @__driver__.find_elements(css: selector)
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "#{selector} cannot be found"
   end
 
   # http://stackoverflow.com/questions/11908249/debugging-element-is-not-clickable-at-point-error
   def scroll(selector)
-    logging "[SCROLL] #{selector}..."
+    logging :info, "scroll to #{selector}..."
     element = find(selector)
-    @__driver__.driver.execute_script "window.scrollTo(#{element.location.x},#{element.location.y})"
+    exec_js "window.scrollTo(#{element.location.x},#{element.location.y})"
     element
-  end
-
-  def finds(selector)
-    @__driver__.find_elements(css: selector)
   end
 
   def has?(selector)
@@ -46,13 +52,17 @@ class GogoDriver
   end
 
   def click(selector)
-    logging "[CLICK] #{selector}..."
+    logging :info, "click #{selector}..."
     has?(selector) ? find(selector).click : false
   end
 
   def submit
-    logging "[SUBMIT] ..."
+    logging :info, "submit form ..."
     $focus.submit if $focus
+  end
+
+  def exec_js(js_code)
+    @__driver__.execute_script js_code
   end
 
   def save_html(file_path)
@@ -64,15 +74,19 @@ class GogoDriver
   end
 
   private
-    def logging(text)
-      puts text
+    def logging(sym, text)
+      label = case sym
+      when :info then "INFO"
+      when :fail then "FAIL"
+      end
+      puts "[#{label}] #{text}"
     end
 end
 
 class Selenium::WebDriver::Element
   def fill(text)
     $focus = self
-    "[FILL] #{text}..."
+    logging :info, "fill #{text}..."
     send_key(text)
   end
 
@@ -84,8 +98,16 @@ class Selenium::WebDriver::Element
     find_elements(css: selector)
   end
 
+  def to_html
+    attribute("outerHTML")
+  end
+
   private
-    def logging(text)
-      puts text
+  def logging(sym, text)
+    label = case sym
+    when :info then "INFO"
+    when :fail then "FAIL"
     end
+    puts "[#{label}] #{text}"
+  end
 end
