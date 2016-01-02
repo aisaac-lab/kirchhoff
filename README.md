@@ -1,41 +1,33 @@
-# SmartDriver
+# Smart Driver
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/smart_driver`. To experiment with that code, run `bin/console` for an interactive prompt.
+Smart selenium base web driver written in Ruby.
 
-TODO: Delete this and the text above, and describe your gem
+[![Gyazo](http://i.gyazo.com/511b5265c67d41fc2cd7394c1eee3b7a.gif)](http://gyazo.com/511b5265c67d41fc2cd7394c1eee3b7a)
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'smart_driver'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+1. Install gem as you like.
 
     $ gem install smart_driver
 
-## Usage
+2. Install chromedriver. (Below is the MacOS example.)
 
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment. Run `bundle exec smart_driver` to use the gem in this directory, ignoring other installed copies of this gem.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/smart_driver. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
+    $ brew install chromedriver
 
 
-## License
+## Demo
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+```rb
+require 'smart_driver'
 
+driver = SmartDriver.new('https://www.facebook.com/')
+driver.find('input#email').fill('mail@gogotanaka.com')
+driver.find('input#pass').fill('password')
+driver.submit
+
+if driver.has_text?('メールアドレスが正しくありません')
+  # ログインエラー後の処理
+else
+  # ログイン成功時の処理
+end
+```
