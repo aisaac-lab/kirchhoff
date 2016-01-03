@@ -1,10 +1,16 @@
 require 'selenium-webdriver'
 
+require 'smart_driver/common_interface'
+
 class SmartDriver
   attr_accessor :__driver__
+  attr_reader :log_dir_path
+  include SmartDriver::CommonInterface
 
-  def initialize(url=nil, browser=:chrome)
+  def initialize(url=nil, log_dir_path="./log", browser=:chrome)
     @__driver__ = Selenium::WebDriver.for(browser)
+    FileUtils.mkdir_p log_dir_path
+    @log_dir_path = log_dir_path
     go(url) if url
   end
 
@@ -17,55 +23,6 @@ class SmartDriver
     @__driver__.navigate.refresh
   end
 
-  def find(selector)
-    logging :info, "find #{selector}..."
-    @__driver__.find_element(css: selector)
-  rescue Selenium::WebDriver::Error::NoSuchElementError
-    logging :fail, "#{selector} cannot be found"
-  end
-
-  def finds(selector)
-    logging :info, "finds #{selector}..."
-    @__driver__.find_elements(css: selector)
-  rescue Selenium::WebDriver::Error::NoSuchElementError
-    logging :fail, "#{selector} cannot be found"
-  end
-
-  def find_by_text(text)
-    logging :info, "find by text #{text}..."
-    @__driver__.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
-  rescue Selenium::WebDriver::Error::NoSuchElementError
-    logging :fail, "element with #{text} cannot be found"
-  end
-
-  def finds_by_text(text)
-    logging :info, "finds by text #{text}..."
-    @__driver__.find_elements({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
-  rescue Selenium::WebDriver::Error::NoSuchElementError
-    logging :fail, "elements with #{text} cannot be found"
-  end
-
-  # http://stackoverflow.com/questions/11908249/debugging-element-is-not-clickable-at-point-error
-  def scroll(selector)
-    logging :info, "scroll to #{selector}..."
-    element = find(selector)
-    exec_js "window.scrollTo(#{element.location.x},#{element.location.y})"
-    element
-  end
-
-  def has?(selector)
-    !!find(selector)
-  end
-
-  def has_text?(text)
-    !!find_by_text(text)
-  end
-
-  def click(selector)
-    logging :info, "click #{selector}..."
-    has?(selector) ? find(selector).click : false
-  end
-
   def submit
     logging :info, "submit form ..."
     $focus.submit if $focus
@@ -75,8 +32,12 @@ class SmartDriver
     @__driver__.execute_script js_code
   end
 
-  def save_html(file_path)
-    File.open(file_path, 'w') { |f| f.write(@__driver__.page_source) }
+  def save_html(file_name="log.html")
+    File.open("#{@log_dir_path}/#{file_name}", 'w') { |f| f.write(@__driver__.page_source) }
+  end
+
+  def save_png(file_name="log.png")
+    @__driver__.save_screenshot "#{@log_dir_path}/#{file_name}"
   end
 
   def method_missing(method, *args, &block)
@@ -86,42 +47,14 @@ class SmartDriver
   def switch_window(num)
     @__driver__.switch_to.window @__driver__.window_handles[num]
   end
-
-  private
-    def logging(sym, text)
-      label = case sym
-      when :info then "INFO"
-      when :fail then "FAIL"
-      end
-      puts "[#{label}] #{text}"
-    end
 end
 
 class Selenium::WebDriver::Element
+  include SmartDriver::CommonInterface
+
   def fill(text)
     $focus = self
-    logging :info, "fill #{text}..."
+    logging :info, "fill '#{text}'"
     send_key(text)
-  end
-
-  def find(selector)
-    find_element(css: selector)
-  end
-
-  def finds(selector)
-    find_elements(css: selector)
-  end
-
-  def to_html
-    attribute("outerHTML")
-  end
-
-  private
-  def logging(sym, text)
-    label = case sym
-    when :info then "INFO"
-    when :fail then "FAIL"
-    end
-    puts "[#{label}] #{text}"
   end
 end

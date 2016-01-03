@@ -3,14 +3,14 @@ require 'test_helper'
 class SmartDriverTest < Minitest::Test
   def test_main
     driver = SmartDriver.new('http://gogotanaka.me/')
-    assert driver.has_text?('gogotanaka')
+    refute_nil driver.find_text('gogotanaka')
     assert_equal driver.find("a").to_html, "<a href=\"http://gogotanaka.hatenablog.com\">\n            <i class=\"fa fa-rss-square\" ,=\"\" style=\"font-size: 50px\"></i>\n          </a>"
-    driver.find_by_text("Hilbert").click()
+    driver.find_text("Hilbert").click()
 
     driver.switch_window(-1)
     sleep 0.2
 
-    assert driver.has_text?('Implement mathematics.')
+    refute_nil driver.find_text('Implement mathematics.')
     driver.quit
   end
 
@@ -19,7 +19,7 @@ class SmartDriverTest < Minitest::Test
     driver.find('input#email').fill('foo@foo.com')
     driver.find('input#pass').fill('password')
     driver.submit
-    assert driver.has_text?("The password")
+    refute_nil driver.find_text("The password")
     driver.quit
   end
 
@@ -29,7 +29,13 @@ class SmartDriverTest < Minitest::Test
       e.fill("tanaka")
     end
     driver.find("button#signupbutton").click
-    assert driver.has_text?('The username and password you entered did not match our records. Please double-check and try again.')
+    refute_nil driver.find_text('The username and password you entered did not match our records. Please double-check and try again.')
     driver.quit
+  end
+
+  def test_utils
+    driver = SmartDriver.new('http://gogotanaka.me/', "./tmp/log")
+    driver.save_png
+    driver.save_html
   end
 end
