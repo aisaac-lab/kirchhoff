@@ -10,6 +10,7 @@ class SmartDriverTest < Minitest::Test
     driver.switch_window(-1)
     sleep 0.2
 
+    refute_nil driver.find("div").find("div").find("a")
     refute_nil driver.find_text('Implement mathematics.')
     driver.quit
   end
@@ -18,6 +19,7 @@ class SmartDriverTest < Minitest::Test
     driver = SmartDriver.new('https://www.facebook.com/')
     driver.find('input#email').fill('foo@foo.com')
     driver.find('input#pass').fill('password')
+
     driver.submit
     refute_nil driver.find_text("The password")
     driver.quit

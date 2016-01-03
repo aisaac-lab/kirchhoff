@@ -12,6 +12,38 @@ class SmartDriver
     go(url) if url
   end
 
+  def find(selector)
+    logging :info, "find #{selector}..."
+    @__driver__.find_element(css: selector)
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "#{selector} cannot be found"
+    nil
+  end
+
+  def finds(selector)
+    logging :info, "finds #{selector}..."
+    @__driver__.find_elements(css: selector)
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "#{selector} cannot be found"
+    nil
+  end
+
+  def find_text(text)
+    logging :info, "find text '#{text}'..."
+    @__driver__.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "text '#{text}' cannot be found"
+    nil
+  end
+
+  def finds_text(text)
+    logging :info, "finds text '#{text}'..."
+    @__driver__.find_elements({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "text #{text} cannot be found"
+    nil
+  end
+
   def go(url)
     logging :info, "visiting #{url}..."
     @__driver__.navigate.to(url)
@@ -49,6 +81,38 @@ end
 
 class Selenium::WebDriver::Element
   include SmartDriver::CommonInterface
+
+  def find(selector)
+    logging :info, "find #{selector} in element..."
+    self.find_element(css: selector)
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "#{selector} cannot be found in element..."
+    nil
+  end
+
+  def finds(selector)
+    logging :info, "finds #{selector} in element..."
+    self.find_elements(css: selector)
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "#{selector} cannot be found in element..."
+    nil
+  end
+
+  def find_text(text)
+    logging :info, "find text '#{text}'..."
+    self.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "text '#{text}' cannot be found"
+    nil
+  end
+
+  def finds_text(text)
+    logging :info, "finds text '#{text}'..."
+    self.find_elements({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "text #{text} cannot be found"
+    nil
+  end
 
   def fill(text)
     $focus = self
