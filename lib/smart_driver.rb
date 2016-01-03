@@ -31,6 +31,20 @@ class SmartDriver
     logging :fail, "#{selector} cannot be found"
   end
 
+  def find_by_text(text)
+    logging :info, "find by text #{text}..."
+    @__driver__.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "element with #{text} cannot be found"
+  end
+
+  def finds_by_text(text)
+    logging :info, "finds by text #{text}..."
+    @__driver__.find_elements({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    logging :fail, "elements with #{text} cannot be found"
+  end
+
   # http://stackoverflow.com/questions/11908249/debugging-element-is-not-clickable-at-point-error
   def scroll(selector)
     logging :info, "scroll to #{selector}..."
@@ -41,14 +55,10 @@ class SmartDriver
 
   def has?(selector)
     !!find(selector)
-  rescue Selenium::WebDriver::Error::NoSuchElementError
-    false
   end
 
   def has_text?(text)
-    !!@__driver__.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
-  rescue Selenium::WebDriver::Error::NoSuchElementError
-    false
+    !!find_by_text(text)
   end
 
   def click(selector)

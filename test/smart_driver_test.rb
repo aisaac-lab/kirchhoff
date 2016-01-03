@@ -5,6 +5,10 @@ class SmartDriverTest < Minitest::Test
     driver = SmartDriver.new('http://gogotanaka.me/')
     assert driver.has_text?('gogotanaka')
     assert_equal driver.find("a").to_html, "<a href=\"http://gogotanaka.hatenablog.com\">\n            <i class=\"fa fa-rss-square\" ,=\"\" style=\"font-size: 50px\"></i>\n          </a>"
+    driver.find_by_text("Hilbert").click()
+
+    driver.switch_to.window driver.window_handles.last
+    ssert driver.has_text?('Implement mathematics.')
     driver.quit
   end
 
