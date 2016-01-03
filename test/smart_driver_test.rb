@@ -32,10 +32,4 @@ class SmartDriverTest < Minitest::Test
     refute_nil driver.find_text('The username and password you entered did not match our records. Please double-check and try again.')
     driver.quit
   end
-
-  def test_utils
-    driver = SmartDriver.new('http://gogotanaka.me/', "./tmp/log")
-    driver.save_png
-    driver.save_html
-  end
 end

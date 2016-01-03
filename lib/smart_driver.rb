@@ -7,10 +7,8 @@ class SmartDriver
   attr_reader :log_dir_path
   include SmartDriver::CommonInterface
 
-  def initialize(url=nil, log_dir_path="./log", browser=:chrome)
+  def initialize(url=nil, browser=:chrome)
     @__driver__ = Selenium::WebDriver.for(browser)
-    FileUtils.mkdir_p log_dir_path
-    @log_dir_path = log_dir_path
     go(url) if url
   end
 
@@ -32,12 +30,12 @@ class SmartDriver
     @__driver__.execute_script js_code
   end
 
-  def save_html(file_name="log.html")
-    File.open("#{@log_dir_path}/#{file_name}", 'w') { |f| f.write(@__driver__.page_source) }
+  def save_html(file_path)
+    File.open(file_path, 'w') { |f| f.write(@__driver__.page_source) }
   end
 
-  def save_png(file_name="log.png")
-    @__driver__.save_screenshot "#{@log_dir_path}/#{file_name}"
+  def save_png(file_path)
+    @__driver__.save_screenshot file_path
   end
 
   def method_missing(method, *args, &block)
