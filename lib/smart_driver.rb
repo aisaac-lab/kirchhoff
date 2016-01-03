@@ -83,6 +83,10 @@ class SmartDriver
     @__driver__.respond_to?(method) ? @__driver__.send(method, *args, &block) : super
   end
 
+  def switch_window(num)
+    @__driver__.switch_to.window @__driver__.window_handles[num]
+  end
+
   private
     def logging(sym, text)
       label = case sym
