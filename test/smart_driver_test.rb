@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class SmartDriverTest < Minitest::Test
+  HOME_IMG_LISTS_CLASS = 'div._nljxa a'
+  COMMENT_LI_CLASS = 'ul._mo9iw li._nk46a'
   def test_main
     driver = SmartDriver.new('http://gogotanaka.me/')
     assert driver.has_text?('gogotanaka')
@@ -42,5 +44,41 @@ class SmartDriverTest < Minitest::Test
     driver.find("button#signupbutton").click
     assert driver.has_text?('The username and password you entered did not match our records. Please double-check and try again.')
     driver.quit
+  end
+
+  def test_instagram
+    @driver = SmartDriver.new 'https://www.instagram.com/instagram/'
+
+    @driver.maybe do
+      @driver.find("._oidfu").click()
+    end
+
+    count = @driver.finds(HOME_IMG_LISTS_CLASS).count
+    new_count = count
+    loop do
+      @driver.exec_js %|window.scrollTo(0,0);|
+      sleep 1
+      10.times do
+        @driver.exec_js %|window.scrollTo(0,document.body.scrollHeight);|
+        sleep 1
+        new_count = @driver.finds(HOME_IMG_LISTS_CLASS).count
+        break if count < new_count
+      end
+      break if count == new_count
+      count = new_count
+      p count
+
+      break if count >= 60
+    end
+    assert_equal 60, count
+
+    @driver.finds(HOME_IMG_LISTS_CLASS).count.times do |i|
+      img_a = @driver.finds(HOME_IMG_LISTS_CLASS)[i]
+      img_a.click { @driver.has?("._3eajp") }
+
+      p @driver.current_url
+
+      @driver.find("._3eajp").click()
+    end
   end
 end

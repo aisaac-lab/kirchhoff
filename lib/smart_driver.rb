@@ -21,9 +21,15 @@ class SmartDriver
     @__driver__.navigate.refresh
   end
 
-  def submit
+  def submit(n=20)
     logging :info, "submit form ..."
-    $focus.submit if $focus
+    $focus.submit
+    if block_given?
+      n.times do
+        break if yield()
+        sleep 0.5
+      end
+    end
   end
 
   def exec_js(js_code)
@@ -55,6 +61,17 @@ end
 
 class Selenium::WebDriver::Element
   include SmartDriver::CommonInterface
+  alias :origin_click :click
+
+  def click(n=20)
+    origin_click()
+    if block_given?
+      n.times do
+        break if yield()
+        sleep 0.5
+      end
+    end
+  end
 
   def fill(text)
     $focus = self
