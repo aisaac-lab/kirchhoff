@@ -3,15 +3,20 @@ require 'test_helper'
 class SmartDriverTest < Minitest::Test
   def test_main
     driver = SmartDriver.new('http://gogotanaka.me/')
-    refute_nil driver.find_text('gogotanaka')
+    assert driver.has_text?('gogotanaka')
     assert_equal driver.find("a").to_html, "<a href=\"http://gogotanaka.hatenablog.com\">\n            <i class=\"fa fa-rss-square\" ,=\"\" style=\"font-size: 50px\"></i>\n          </a>"
     driver.find_text("Hilbert").click()
 
     driver.switch_window(-1)
     sleep 0.2
 
-    refute_nil driver.find("div").find("div").find("a")
-    refute_nil driver.find_text('Implement mathematics.')
+    assert driver.find("div").find("div").has?("a")
+    assert driver.has_text?('Implement mathematics.')
+
+    driver.maybe do
+      driver.find("noooooo")
+    end
+
     driver.quit
   end
 
@@ -25,7 +30,7 @@ class SmartDriverTest < Minitest::Test
     end
 
     driver.submit
-    refute_nil driver.find_text("The password")
+    assert driver.has_text?("The password")
     driver.quit
   end
 
@@ -35,7 +40,7 @@ class SmartDriverTest < Minitest::Test
       e.fill("tanaka")
     end
     driver.find("button#signupbutton").click
-    refute_nil driver.find_text('The username and password you entered did not match our records. Please double-check and try again.')
+    assert driver.has_text?('The username and password you entered did not match our records. Please double-check and try again.')
     driver.quit
   end
 end

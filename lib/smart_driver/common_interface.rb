@@ -1,39 +1,43 @@
 class SmartDriver
   module CommonInterface
     def find(selector)
-      logging :info, "find #{selector}..."
       self.find_element(css: selector).tap do |e|
+        logging :info, "find #{selector}..."
         yield(e) if block_given?
       end
-    rescue Selenium::WebDriver::Error::NoSuchElementError
-      logging :fail, "#{selector} cannot be found..."
-      nil
     end
 
     def finds(selector)
-      logging :info, "finds #{selector}..."
-      self.find_elements(css: selector)
-    rescue Selenium::WebDriver::Error::NoSuchElementError
-      logging :fail, "#{selector} cannot be found..."
-      nil
+      self.find_elements(css: selector).tap do |es|
+        logging :info, "finds #{selector}..."
+      end
     end
 
     def find_text(text)
-      logging :info, "find text '#{text}'..."
       self.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"}).tap do |e|
+        logging :info, "find text '#{text}'..."
         yield(e) if block_given?
       end
-    rescue Selenium::WebDriver::Error::NoSuchElementError
-      logging :fail, "text '#{text}' cannot be found"
-      nil
     end
 
     def finds_text(text)
-      logging :info, "finds text '#{text}'..."
-      self.find_elements({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+      self.find_elements({xpath: "//*[text()[contains(.,\"#{text}\")]]"}).tap do |es|
+        logging :info, "finds text '#{text}'..."
+      end
+    end
+
+    def has?(selector)
+      self.find_element(css: selector)
+      true
     rescue Selenium::WebDriver::Error::NoSuchElementError
-      logging :fail, "text #{text} cannot be found"
-      nil
+      false
+    end
+
+    def has_text?(text)
+      self.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+      true
+    rescue Selenium::WebDriver::Error::NoSuchElementError
+      false
     end
 
     def to_html

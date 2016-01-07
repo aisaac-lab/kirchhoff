@@ -45,6 +45,12 @@ class SmartDriver
   def switch_window(num)
     @__driver__.switch_to.window @__driver__.window_handles[num]
   end
+
+  def maybe(&block)
+    block.call()
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    nil
+  end
 end
 
 class Selenium::WebDriver::Element
