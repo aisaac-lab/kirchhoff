@@ -2,7 +2,9 @@ class SmartDriver
   module CommonInterface
     def find(selector)
       logging :info, "find #{selector}..."
-      self.find_element(css: selector)
+      self.find_element(css: selector).tap do |e|
+        yield(e) if block_given?
+      end
     rescue Selenium::WebDriver::Error::NoSuchElementError
       logging :fail, "#{selector} cannot be found..."
       nil
@@ -18,7 +20,9 @@ class SmartDriver
 
     def find_text(text)
       logging :info, "find text '#{text}'..."
-      self.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"})
+      self.find_element({xpath: "//*[text()[contains(.,\"#{text}\")]]"}).tap do |e|
+        yield(e) if block_given?
+      end
     rescue Selenium::WebDriver::Error::NoSuchElementError
       logging :fail, "text '#{text}' cannot be found"
       nil

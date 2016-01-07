@@ -17,8 +17,12 @@ class SmartDriverTest < Minitest::Test
 
   def test_facebook
     driver = SmartDriver.new('https://www.facebook.com/')
-    driver.find('input#email').fill('foo@foo.com')
-    driver.find('input#pass').fill('password')
+    driver.find('input#email') do |e|
+      e.fill('foo@foo.com')
+    end
+    driver.find('input#pass') do |e|
+      e.fill('foo@foo.com')
+    end
 
     driver.submit
     refute_nil driver.find_text("The password")
