@@ -47,7 +47,11 @@ class SmartDriverTest < Minitest::Test
   end
 
   def test_instagram
-    @driver = SmartDriver.new 'https://www.instagram.com/instagram/'
+    @driver = SmartDriver.new
+
+    @driver.go("https://www.instagram.com/instagram/") do
+      @driver.find(HOME_IMG_LISTS_CLASS)
+    end
 
     @driver.maybe do
       @driver.find("._oidfu").click()
@@ -72,9 +76,8 @@ class SmartDriverTest < Minitest::Test
     end
     assert_equal 60, count
 
-    @driver.finds(HOME_IMG_LISTS_CLASS).count.times do |i|
-      img_a = @driver.finds(HOME_IMG_LISTS_CLASS)[i]
-      img_a.click { @driver.has?("._3eajp") }
+    @driver.finds(HOME_IMG_LISTS_CLASS).each do |img_a|
+      img_a.click { @driver.find("._3eajp") }
 
       p @driver.current_url
 

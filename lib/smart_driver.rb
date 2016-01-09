@@ -12,9 +12,13 @@ class SmartDriver
     go(url) if url
   end
 
-  def go(url)
+  def go(url, t=10, &block)
     logging :info, "visiting #{url}..."
     @__driver__.navigate.to(url)
+    if block_given?
+      wait = Selenium::WebDriver::Wait.new(timeout: t)
+      wait.until(&block)
+    end
   end
 
   def reload
@@ -63,13 +67,11 @@ class Selenium::WebDriver::Element
   include SmartDriver::CommonInterface
   alias :origin_click :click
 
-  def click(n=20)
+  def click(t=10, &block)
     origin_click()
     if block_given?
-      n.times do
-        break if yield()
-        sleep 0.5
-      end
+      wait = Selenium::WebDriver::Wait.new(timeout: t)
+      wait.until(&block)
     end
   end
 
