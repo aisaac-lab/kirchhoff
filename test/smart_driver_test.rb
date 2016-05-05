@@ -3,8 +3,10 @@ require 'test_helper'
 class SmartDriverTest < Minitest::Test
   HOME_IMG_LISTS_CLASS = 'div._nljxa a'
   COMMENT_LI_CLASS = 'ul._mo9iw li._nk46a'
+
   def test_main
-    driver = SmartDriver.new('http://gogotanaka.me/')
+    binding.pry
+    driver = Kirchhoff::Driver.new('http://gogotanaka.me/')
     assert driver.has_text?('gogotanaka')
     assert_equal driver.find("a").to_html, "<a href=\"http://gogotanaka.hatenablog.com\">\n            <i class=\"fa fa-rss-square\" ,=\"\" style=\"font-size: 50px\"></i>\n          </a>"
     driver.find_text("Hilbert").click()
@@ -12,7 +14,6 @@ class SmartDriverTest < Minitest::Test
     driver.switch_window(-1)
     sleep 0.2
 
-    assert driver.find("div").find("div").has?("a")
     assert driver.has_text?('Implement mathematics.')
 
     driver.maybe do
@@ -23,7 +24,7 @@ class SmartDriverTest < Minitest::Test
   end
 
   def test_facebook
-    driver = SmartDriver.new('https://www.facebook.com/')
+    driver = Kirchhoff::Driver.new('https://www.facebook.com/')
     driver.find('input#email') do |e|
       e.fill('foo@foo.com')
     end
@@ -37,7 +38,7 @@ class SmartDriverTest < Minitest::Test
   end
 
   def test_twitter
-    driver = SmartDriver.new('https://mobile.twitter.com/session/new')
+    driver = Kirchhoff::Driver.new('https://mobile.twitter.com/session/new')
     driver.finds(".signup-field input").each do |e|
       e.fill("tanaka")
     end
@@ -47,7 +48,7 @@ class SmartDriverTest < Minitest::Test
   end
 
   def test_instagram
-    @driver = SmartDriver.new
+    @driver = Kirchhoff::Driver.new
 
     @driver.go("https://www.instagram.com/instagram/") do
       @driver.find(HOME_IMG_LISTS_CLASS)

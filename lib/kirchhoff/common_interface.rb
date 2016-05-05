@@ -1,4 +1,4 @@
-class SmartDriver
+module Kirchhoff
   module CommonInterface
     def find(selector)
       self.find_element(css: selector).tap do |e|

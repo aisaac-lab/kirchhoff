@@ -8,7 +8,7 @@ Smart selenium base web driver written in Ruby.
 
 1. Install gem as you like.
 
-    $ gem install smart_driver
+    $ gem install kirchhoff
 
 2. Install chromedriver. (Below is the MacOS example.)
 
@@ -18,9 +18,9 @@ Smart selenium base web driver written in Ruby.
 ## Demo
 
 ```rb
-require 'smart_driver'
+require 'kirchhoff'
 
-driver = SmartDriver.new('https://www.facebook.com/')
+driver = Kirchhoff::Driver.new('https://www.facebook.com/')
 driver.find('input#email').fill('mail@gogotanaka.com')
 driver.find('input#pass').fill('password')
 driver.submit
