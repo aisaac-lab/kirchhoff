@@ -1,6 +1,8 @@
 require 'selenium-webdriver'
+require 'nokogiri'
 
 require 'kirchhoff/common_interface'
+require 'kirchhoff/logger'
 
 module Kirchhoff
   class Driver
@@ -8,33 +10,35 @@ module Kirchhoff
     attr_reader :log_dir_path
     include Kirchhoff::CommonInterface
 
+    def find_element selector
+      @__driver__.find_element selector
+    end
+
+    def find_elements selector
+      @__driver__.find_elements selector
+    end
+
+    def current_url
+      @__driver__.current_url
+    end
+
     def initialize(url=nil, browser=:chrome)
       @__driver__ = Selenium::WebDriver.for(browser)
       go(url) if url
     end
 
-    def go(url, t=10, &block)
-      logging :info, "visiting #{url}..."
+    def go(url, &block)
       @__driver__.navigate.to(url)
-      if block_given?
-        wait = Selenium::WebDriver::Wait.new(timeout: t)
-        wait.until(&block)
-      end
+      Kirchhoff::Logger.call :info, "visiting #{url}..."
     end
 
     def reload
       @__driver__.navigate.refresh
     end
 
-    def submit(n=20)
-      logging :info, "submit form ..."
+    def submit
       $focus.submit
-      if block_given?
-        n.times do
-          break if yield()
-          sleep 0.5
-        end
-      end
+      Kirchhoff::Logger.call :info, "submit form ..."
     end
 
     def exec_js(js_code)
@@ -49,18 +53,18 @@ module Kirchhoff
       @__driver__.save_screenshot file_path
     end
 
-    def method_missing(method, *args, &block)
-      @__driver__.respond_to?(method) ? @__driver__.send(method, *args, &block) : super
-    end
-
-    def switch_window(num)
+    def switch_window num
       @__driver__.switch_to.window @__driver__.window_handles[num]
     end
 
-    def maybe(&block)
-      block.call()
-    rescue Selenium::WebDriver::Error::NoSuchElementError
-      nil
+    def wait_element selector, t=10
+      wait = Selenium::WebDriver::Wait.new(timeout: t)
+      wait.until { self.find_element(css: selector) }
+    end
+
+    def wait_text text, t=10
+      wait = Selenium::WebDriver::Wait.new(timeout: t)
+      wait.until { self.find_element(xpath: "//*[text()[contains(.,\"#{text}\")]]") }
     end
   end
 end
@@ -69,17 +73,13 @@ class Selenium::WebDriver::Element
   include Kirchhoff::CommonInterface
   alias :origin_click :click
 
-  def click(t=10, &block)
+  def click
     origin_click()
-    if block_given?
-      wait = Selenium::WebDriver::Wait.new(timeout: t)
-      wait.until(&block)
-    end
   end
 
   def fill(text)
     $focus = self
-    logging :info, "fill '#{text}'"
     send_key(text)
+    Kirchhoff::Logger.call :info, "fill '#{text}'"
   end
 end
