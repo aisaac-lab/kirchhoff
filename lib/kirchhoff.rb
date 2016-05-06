@@ -6,7 +6,7 @@ require 'kirchhoff/logger'
 
 module Kirchhoff
   class Driver
-    attr_accessor :__driver__
+    attr_accessor :__driver__, :default_timeout
     attr_reader :log_dir_path
     include Kirchhoff::CommonInterface
 
@@ -26,9 +26,9 @@ module Kirchhoff
       @__driver__.quit
     end
 
-    def initialize(url=nil, browser=:chrome)
-      @__driver__ = Selenium::WebDriver.for(browser)
-      go(url) if url
+    def initialize(browser: :chrome, default_timeout: 6)
+      @__driver__      = Selenium::WebDriver.for(browser)
+      @default_timeout = default_timeout
     end
 
     def go url
@@ -61,8 +61,8 @@ module Kirchhoff
       @__driver__.switch_to.window @__driver__.window_handles[num]
     end
 
-    def wait_element selector, maybe=true, t=6
-      wait = Selenium::WebDriver::Wait.new(timeout: t)
+    def wait_element(selector, maybe: true, t: nil)
+      wait = Selenium::WebDriver::Wait.new(timeout: (t || @default_timeout))
       wait.until { self.find_element(css: selector) }
     rescue Selenium::WebDriver::Error::TimeOutError
       unless maybe
@@ -70,8 +70,8 @@ module Kirchhoff
       end
     end
 
-    def wait_text text, maybe=true, t=6
-      wait = Selenium::WebDriver::Wait.new(timeout: t)
+    def wait_text(text, maybe: true, t: nil)
+      wait = Selenium::WebDriver::Wait.new(timeout: (t || @default_timeout))
       wait.until { self.find_element(xpath: "//*[text()[contains(.,\"#{text}\")]]") }
     rescue Selenium::WebDriver::Error::TimeOutError
       unless maybe

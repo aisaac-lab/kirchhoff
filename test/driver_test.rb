@@ -1,6 +1,29 @@
 require 'test_helper'
 
 class SmartDriverTest < Minitest::Test
+  def test_main
+    driver = Kirchhoff::Driver.new(default_timeout: 1)
+    driver.go("file://#{`pwd`}/test/test.html")
+
+    assert_nil driver.find("div#noexist")
+    assert_instance_of Selenium::WebDriver::Element, driver.find("div#exist")
+
+    assert_instance_of Selenium::WebDriver::Element, driver.wait_element("div#exist")
+
+    assert_instance_of Selenium::WebDriver::Element, driver.wait_text("Hello")
+
+    assert_nil driver.wait_element("div#noexist")
+    assert_nil driver.wait_text("no")
+
+    assert_raises Selenium::WebDriver::Error::TimeOutError do
+      driver.wait_element("div#noexist", maybe: false)
+    end
+
+    assert_raises Selenium::WebDriver::Error::TimeOutError do
+      driver.wait_text("no", maybe: false)
+    end
+    driver.quit
+  end
   # def test_main
   #   binding.pry
   #   driver = Kirchhoff::Driver.new('http://gogotanaka.me/')
