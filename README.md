@@ -8,11 +8,11 @@ Smart selenium base web driver written in Ruby.
 
 1. Install gem as you like.
 
-    $ gem install kirchhoff
+  $ gem install kirchhoff
 
 2. Install chromedriver. (Below is the MacOS example.)
 
-    $ brew install chromedriver
+  $ brew install chromedriver
 
 
 ## Demo
@@ -20,14 +20,20 @@ Smart selenium base web driver written in Ruby.
 ```rb
 require 'kirchhoff'
 
-driver = Kirchhoff::Driver.new('https://www.facebook.com/')
+driver = Kirchhoff::Driver.new
+driver.go 'https://www.facebook.com/'
 driver.find('input#email').fill('mail@gogotanaka.com')
 driver.find('input#pass').fill('password')
 driver.submit
 
-if driver.has_text?('メールアドレスが正しくありません')
-  # ログインエラー後の処理
-else
-  # ログイン成功時の処理
+driver.find_text('メールアドレスが正しくありません') do |e|
+  unless e
+    # If there is no text 'メールアドレスが正しくありません'
+  end
 end
+
+driver.wait_element("div#wait", timeout: 5)
+
+driver.wait_text("wait for you...", timeout: 5, maybe: false)
+#=> raise err if there is no text 'wait for you...'
 ```
