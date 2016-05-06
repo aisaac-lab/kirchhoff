@@ -22,12 +22,16 @@ module Kirchhoff
       @__driver__.current_url
     end
 
+    def quit
+      @__driver__.quit
+    end
+
     def initialize(url=nil, browser=:chrome)
       @__driver__ = Selenium::WebDriver.for(browser)
       go(url) if url
     end
 
-    def go(url, &block)
+    def go url
       @__driver__.navigate.to(url)
       Kirchhoff::Logger.call :info, "visiting #{url}..."
     end
@@ -57,14 +61,26 @@ module Kirchhoff
       @__driver__.switch_to.window @__driver__.window_handles[num]
     end
 
-    def wait_element selector, t=10
+    def wait_element selector, maybe=true, t=6
       wait = Selenium::WebDriver::Wait.new(timeout: t)
       wait.until { self.find_element(css: selector) }
+    rescue Selenium::WebDriver::Error::TimeOutError
+      unless maybe
+        raise Selenium::WebDriver::Error::TimeOutError, "selector: #{selector}"
+      end
     end
 
-    def wait_text text, t=10
+    def wait_text text, maybe=true, t=6
       wait = Selenium::WebDriver::Wait.new(timeout: t)
       wait.until { self.find_element(xpath: "//*[text()[contains(.,\"#{text}\")]]") }
+    rescue Selenium::WebDriver::Error::TimeOutError
+      unless maybe
+        raise Selenium::WebDriver::Error::TimeOutError, "text: #{text}"
+      end
+    end
+
+    def to_html
+      self.__driver__.page_source
     end
   end
 end
