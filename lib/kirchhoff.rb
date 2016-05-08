@@ -6,17 +6,9 @@ require 'kirchhoff/logger'
 
 module Kirchhoff
   class Driver
-    attr_accessor :__driver__, :default_timeout
-    attr_reader :log_dir_path
+    attr_accessor :__driver__, :waiter
+
     include Kirchhoff::CommonInterface
-
-    def find_element selector
-      @__driver__.find_element selector
-    end
-
-    def find_elements selector
-      @__driver__.find_elements selector
-    end
 
     def current_url
       @__driver__.current_url
@@ -26,9 +18,13 @@ module Kirchhoff
       @__driver__.quit
     end
 
-    def initialize(browser: :chrome, default_timeout: 6)
-      @__driver__      = Selenium::WebDriver.for(browser)
-      @default_timeout = default_timeout
+    def reload
+      @__driver__.navigate.refresh
+    end
+
+    def initialize(browser: :chrome, timeout: 6)
+      @__driver__ = Selenium::WebDriver.for(browser)
+      @waiter     = Selenium::WebDriver::Wait.new(timeout: timeout)
     end
 
     def go url
@@ -36,13 +32,13 @@ module Kirchhoff
       Kirchhoff::Logger.call :info, "visiting #{url}..."
     end
 
-    def reload
-      @__driver__.navigate.refresh
-    end
-
     def submit
       $focus.submit
       Kirchhoff::Logger.call :info, "submit form ..."
+    end
+
+    def to_html
+      attribute "outerHTML"
     end
 
     def exec_js(js_code)
@@ -61,26 +57,24 @@ module Kirchhoff
       @__driver__.switch_to.window @__driver__.window_handles[num]
     end
 
-    def wait_element(selector, maybe: true, t: nil)
-      wait = Selenium::WebDriver::Wait.new(timeout: (t || @default_timeout))
-      wait.until { self.find_element(css: selector) }
-    rescue Selenium::WebDriver::Error::TimeOutError
-      unless maybe
-        raise Selenium::WebDriver::Error::TimeOutError, "selector: #{selector}"
-      end
-    end
-
-    def wait_text(text, maybe: true, t: nil)
-      wait = Selenium::WebDriver::Wait.new(timeout: (t || @default_timeout))
-      wait.until { self.find_element(xpath: "//*[text()[contains(.,\"#{text}\")]]") }
-    rescue Selenium::WebDriver::Error::TimeOutError
-      unless maybe
-        raise Selenium::WebDriver::Error::TimeOutError, "text: #{text}"
-      end
-    end
-
     def to_html
-      self.__driver__.page_source
+      @__driver__.page_source
+    end
+
+    private def weak_find selector
+      @__driver__.find_element(css: selector)
+    end
+
+    private def weak_multi_find selector
+      @__driver__.find_elements(css: selector)
+    end
+
+    private def weak_find_text text
+      @__driver__.find_element(xpath: "//*[text()[contains(.,\"#{text}\")]]")
+    end
+
+    private def weak_multi_find_text text
+      @__driver__.find_elements(xpath: "//*[text()[contains(.,\"#{text}\")]]")
     end
   end
 end
@@ -89,13 +83,25 @@ class Selenium::WebDriver::Element
   include Kirchhoff::CommonInterface
   alias :origin_click :click
 
-  def click
-    origin_click()
-  end
-
   def fill(text)
     $focus = self
     send_key(text)
     Kirchhoff::Logger.call :info, "fill '#{text}'"
+  end
+
+  def to_html
+    attribute "outerHTML"
+  end
+
+  private def weak_find selector
+    self.find_element(css: selector)
+  end
+
+  private def weak_find_text text
+    self.find_elements(xpath: "//*[text()[contains(.,\"#{text}\")]]")
+  end
+
+  def waiter
+    Selenium::WebDriver::Wait.new(timeout: 5)
   end
 end
