@@ -39,6 +39,8 @@ class SmartDriverTest < Minitest::Test
     assert_instance_of Selenium::WebDriver::Element, driver.find("div#exist", wait: false, maybe: false)
     assert_instance_of Selenium::WebDriver::Element, driver.find_text("Hello", wait: false, maybe: false)
 
+    assert_equal "Hello", driver.find("div#exist") { |e| e.text }
+
     driver.quit
   end
   # def test_main
