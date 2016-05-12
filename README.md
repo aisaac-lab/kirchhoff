@@ -1,4 +1,4 @@
-# Smart Driver
+# Kirchhoff
 
 Smart selenium base web driver written in Ruby.
 
@@ -20,20 +20,22 @@ Smart selenium base web driver written in Ruby.
 ```rb
 require 'kirchhoff'
 
-driver = Kirchhoff::Driver.new
-driver.go 'https://www.facebook.com/'
-driver.find('input#email').fill('mail@gogotanaka.com')
-driver.find('input#pass').fill('password')
-driver.submit
+driver = Kirchhoff::Driver.new(timeout: 1)
 
-driver.find_text('メールアドレスが正しくありません') do |e|
-  unless e
-    # If there is no text 'メールアドレスが正しくありません'
-  end
+driver.go("http://gogotanaka.me/")
+
+driver.find("div#exist", wait: true, maybe: false) do |e|
+  # This code is executed.
+  e.click
+  e.fill("hogehoge")
+  p e.to_html
 end
 
-driver.wait_element("div#wait", timeout: 5)
+driver.find("div#no-exist", wait: true) do |e|
+  # This code is not executed.
+end
 
-driver.wait_text("wait for you...", timeout: 5, maybe: false)
-#=> raise err if there is no text 'wait for you...'
+driver.find("div#exist", &:click)&.find("div#inner", maybe: false, &:fill)
+
+# maybe ... raise error when element cannot be found and maybe==true
 ```
